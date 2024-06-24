@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:      
+    rabbit-mq:
+      image: rabbitmq:3.9.29-management
+      container_name: rabbit-mq
+      ports:
+        - 5672:5672
+        - 15672:15672
+      healthcheck:
+        test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+        timeout: 5s
+        interval: 5s
+        retries: 3
+      networks:
+        - proposal-network
+
+    db-proposal:
+      image: postgres
+      container_name: db-proposal
+      environment:
+        POSTGRES_DB: proposaldb
+        POSTGRES_USER: root
+        POSTGRES_PASSWORD: admin123
+      volumes:
+        - ./docker/postgres-db:/var/lib/postgresql/data
+      ports:
+        - 5433:5432
+      expose:
+        - 5433
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U root -d proposaldb"]
+        interval: 10s
+        timeout: 10s
+        retries: 5
+      networks:
+        - proposal-network
+         
+    ms-proposal:
+      container_name: proposal-app
+      build:
+         context: ./proposal-app/
+         dockerfile: Dockerfile
+      environment:
+         SPRING.DATASOURCE.URL: jdbc:postgresql://db-proposal:5432/proposaldb
+         SPRING.DATASOURCE.USERNAME: root
+         SPRING.DATASOURCE.PASSWORD: admin123
+         SPRING.RABBITMQ.HOST: rabbit-mq
+      ports:
+         - 8051:8080
+      depends_on:
+        rabbit-mq:
+          condition: service_healthy
+        db-proposal:
+          condition: service_healthy
+      networks:
+         - proposal-network
+         
+    ms-notification:
+      container_name: notification
+      build:
+         context: ./notification/
+         dockerfile: Dockerfile
+      environment:
+         SPRING.RABBITMQ.HOST: rabbit-mq
+      depends_on:
+        rabbit-mq:
+          condition: service_healthy
+      networks:
+         - proposal-network
+         
+    ms-credit-analysis:
+      container_name: credit-analysis
+      build:
+         context: ./credit-analysis/
+         dockerfile: Dockerfile
+      environment:
+         SPRING.RABBITMQ.HOST: rabbit-mq
+      depends_on:
+        rabbit-mq:
+          condition: service_healthy
+      networks:
+         - proposal-network
+
+networks:
+    proposal-network:
+      driver: bridge

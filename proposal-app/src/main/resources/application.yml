@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: proposal-app
+  datasource:
+    url: jdbc:postgresql://localhost:5432/proposaldb
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: update
+      
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+    
+rabbitmq:
+  pendingproposal:
+    exchange: pending-proposal.ex
+  completedproposal: 
+    exchange: completed-proposal.ex
+  queue:
+    proposal:
+      completed: completed-proposal.ms-proposal
+  

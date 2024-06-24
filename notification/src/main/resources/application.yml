@@ -1,0 +1,21 @@
+spring:
+  profiles:
+    active: mock
+    
+  application:
+    name: notification
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+rabbitmq:
+  queue:
+    proposal:
+      pending: pending-proposal.ms-notification
+      completed: completed-proposal.ms-notification
+
+aws:
+  accessKey: 123
+  secretKey: 321

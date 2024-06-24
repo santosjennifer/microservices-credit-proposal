@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: credit-analysis
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+rabbitmq:
+  queue:
+    proposal:
+      pending: pending-proposal.ms-credit-analysis
+  completedproposal:
+    exchange: completed-proposal.ex
