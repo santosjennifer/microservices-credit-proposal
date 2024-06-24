@@ -2,6 +2,7 @@ package com.github.proposalapp.mapper;
 
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.Locale;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -38,7 +39,8 @@ public interface ProposalMapper {
 	List<ProposalResponseDto> listProposalToListResponseDto(Iterable<Proposal> proposals);
 	
     default String setValueRequested(Proposal proposal) {
-        return NumberFormat.getCurrencyInstance().format(proposal.getValueRequested());
+    	NumberFormat formatter = NumberFormat.getCurrencyInstance(Locale.of("pt", "BR"));
+    	return formatter.format(proposal.getValueRequested());
     }
 	
 }
